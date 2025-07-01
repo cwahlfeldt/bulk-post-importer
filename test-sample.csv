@@ -1,0 +1,4 @@
+title,content,excerpt,status,custom_field
+"Test Post 1","This is the content for test post 1","Excerpt for post 1","publish","custom value 1"
+"Test Post 2","This is the content for test post 2","Excerpt for post 2","draft","custom value 2"
+"Test Post 3","This is the content for test post 3","Excerpt for post 3","publish","custom value 3"
