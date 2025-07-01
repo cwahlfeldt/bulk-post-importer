@@ -46,6 +46,10 @@
   outline: 2px solid transparent;
 }
 
+.bji-mapping-table select:disabled {
+  background-image: unset;
+}
+
 .bji-mapping-table label {
   display: block;
   font-weight: 600;

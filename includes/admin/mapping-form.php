@@ -25,7 +25,7 @@ foreach ($json_keys as $key) {
 	<p>
 		<?php
 		printf(
-			esc_html__('Found %1$d items to import as "%2$s" posts. Please map the JSON keys (left) to the corresponding WordPress fields (right).', 'bulk-post-importer'),
+			esc_html__('Found %1$d items to import as "%2$s" posts. Please map the data fields (left) to the corresponding WordPress fields (right).', 'bulk-post-importer'),
 			absint($item_count),
 			esc_html($post_type_label)
 		);
@@ -44,7 +44,7 @@ foreach ($json_keys as $key) {
 		<table class="form-table bji-mapping-table">
 			<thead>
 				<tr>
-					<th><?php esc_html_e('JSON Key', 'bulk-post-importer'); ?></th>
+					<th><?php esc_html_e('Data Field', 'bulk-post-importer'); ?></th>
 					<th><?php esc_html_e('WordPress Field', 'bulk-post-importer'); ?></th>
 				</tr>
 			</thead>
@@ -87,40 +87,49 @@ foreach ($json_keys as $key) {
 		<?php if (BPI_Plugin::get_instance()->acf_handler->is_active()) : ?>
 			<h2><?php esc_html_e('Advanced Custom Fields (ACF)', 'bulk-post-importer'); ?></h2>
 			<?php if (! empty($acf_fields)) : ?>
-				<p><?php esc_html_e('Map JSON keys to available ACF fields for this post type.', 'bulk-post-importer'); ?></p>
-				<p class="description"><?php esc_html_e('Note: Complex fields like Repeaters, Galleries, Relationships, Files, or Images require the JSON data to be in the specific format ACF expects (e.g., Attachment IDs for images/files, Post IDs for relationships, structured arrays for repeaters). Basic text/number/choice fields are handled directly.', 'bulk-post-importer'); ?></p>
+				<p><?php esc_html_e('Map data fields to available ACF fields for this post type.', 'bulk-post-importer'); ?></p>
+				<p class="description"><?php esc_html_e('Only simple field types (text, textarea, number, email, url, password, phone) can be mapped. Complex fields are shown for reference but cannot be imported.', 'bulk-post-importer'); ?></p>
 				<table class="form-table bji-mapping-table">
 					<thead>
 						<tr>
-							<th><?php esc_html_e('JSON Key', 'bulk-post-importer'); ?></th>
+							<th><?php esc_html_e('Data Field', 'bulk-post-importer'); ?></th>
 							<th><?php esc_html_e('ACF Field', 'bulk-post-importer'); ?></th>
 						</tr>
 					</thead>
 					<tbody>
 						<?php foreach ($acf_fields as $field_key => $field) : ?>
 							<?php if (! isset($field['key'], $field['name'], $field['label'], $field['type'])) continue; ?>
-							<tr valign="top">
+							<tr valign="top" <?php if (!$field['is_mappable']) echo 'style="opacity: 0.6;"'; ?>>
 								<th scope="row">
-									<select name="mapping[acf][<?php echo esc_attr($field_key); ?>]">
-										<?php
-										$selected_attr = '';
-										foreach ($json_keys as $json_key) {
-											if (0 === strcasecmp($field['name'], $json_key)) {
-												$selected_attr = 'selected="selected"';
-												echo str_replace('value="' . esc_attr($json_key) . '"', 'value="' . esc_attr($json_key) . '" ' . $selected_attr, $json_key_options); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-												break;
+									<?php if ($field['is_mappable']) : ?>
+										<select name="mapping[acf][<?php echo esc_attr($field_key); ?>]">
+											<?php
+											$selected_attr = '';
+											foreach ($json_keys as $json_key) {
+												if (0 === strcasecmp($field['name'], $json_key)) {
+													$selected_attr = 'selected="selected"';
+													echo str_replace('value="' . esc_attr($json_key) . '"', 'value="' . esc_attr($json_key) . '" ' . $selected_attr, $json_key_options); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+													break;
+												}
 											}
-										}
-										if (empty($selected_attr)) {
-											echo $json_key_options; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-										}
-										?>
-									</select>
+											if (empty($selected_attr)) {
+												echo $json_key_options; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+											}
+											?>
+										</select>
+									<?php else : ?>
+										<select disabled>
+											<option><?php esc_html_e('-- Cannot Map --', 'bulk-post-importer'); ?></option>
+										</select>
+									<?php endif; ?>
 								</th>
 								<td>
 									<label title="Key: <?php echo esc_attr($field_key); ?> | Name: <?php echo esc_attr($field['name']); ?> | Type: <?php echo esc_attr($field['type']); ?>">
 										<?php echo esc_html($field['label']); ?>
 										(<code><?php echo esc_html($field['name']); ?></code> - <i><?php echo esc_html($field['type']); ?></i>)
+										<?php if (!$field['is_mappable']) : ?>
+											<br><small style="color: #d63638;"><?php esc_html_e('Complex field type - cannot be mapped from simple data', 'bulk-post-importer'); ?></small>
+										<?php endif; ?>
 									</label>
 								</td>
 							</tr>
@@ -134,11 +143,11 @@ foreach ($json_keys as $key) {
 		<?php endif; ?>
 
 		<h2><?php esc_html_e('Other Custom Fields (Non-ACF Post Meta)', 'bulk-post-importer'); ?></h2>
-		<p><?php esc_html_e('Map JSON keys to standard WordPress custom field names (meta keys). Use this for meta fields NOT managed by ACF.', 'bulk-post-importer'); ?></p>
+		<p><?php esc_html_e('Map data fields to standard WordPress custom field names (meta keys). Use this for meta fields NOT managed by ACF.', 'bulk-post-importer'); ?></p>
 		<table class="form-table bji-mapping-table" id="bji-custom-fields-table">
 			<thead>
 				<tr>
-					<th><?php esc_html_e('JSON Key', 'bulk-post-importer'); ?></th>
+					<th><?php esc_html_e('Data Field', 'bulk-post-importer'); ?></th>
 					<th><?php esc_html_e('Custom Field Name (Meta Key)', 'bulk-post-importer'); ?></th>
 					<th><?php esc_html_e('Action', 'bulk-post-importer'); ?></th>
 				</tr>

@@ -359,7 +359,11 @@ class BPI_Import_Processor
 				continue;
 			}
 
-			$acf_fields_to_update[$acf_field_key] = $item[$json_key];
+			// Get the field object to check if it's mappable
+			$field_object = $acf_handler->get_field_object($acf_field_key, 0);
+			if ($field_object && $acf_handler->is_field_mappable($field_object)) {
+				$acf_fields_to_update[$acf_field_key] = $item[$json_key];
+			}
 		}
 	}
 

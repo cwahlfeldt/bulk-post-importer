@@ -31,7 +31,7 @@ class BPI_ACF_Handler
 	 * Get ACF fields for a post type.
 	 *
 	 * @param string $post_type The post type slug.
-	 * @return array Array of ACF field objects.
+	 * @return array Array of ACF field objects with mappable status.
 	 */
 	public function get_fields_for_post_type($post_type)
 	{
@@ -66,11 +66,56 @@ class BPI_ACF_Handler
 					continue;
 				}
 
+				// Add mappable status to field
+				$field['is_mappable'] = $this->is_field_mappable($field);
 				$acf_fields[$field['key']] = $field;
 			}
 		}
 
 		return $acf_fields;
+	}
+
+	/**
+	 * Check if an ACF field type can be mapped from simple text/number data.
+	 *
+	 * @param array $field The ACF field array.
+	 * @return bool True if the field can be mapped.
+	 */
+	public function is_field_mappable($field)
+	{
+		if (! isset($field['type'])) {
+			return false;
+		}
+
+		$allowed_field_types = array(
+			'text',
+			'textarea',
+			'number',
+			'email',
+			'url',
+			'password',
+			'phone_number', // ACF Phone Number field addon
+		);
+
+		return in_array($field['type'], $allowed_field_types, true);
+	}
+
+	/**
+	 * Get allowed field types for import mapping.
+	 *
+	 * @return array Array of allowed field types.
+	 */
+	public function get_allowed_field_types()
+	{
+		return array(
+			'text'         => __('Text', 'bulk-post-importer'),
+			'textarea'     => __('Textarea', 'bulk-post-importer'),
+			'number'       => __('Number', 'bulk-post-importer'),
+			'email'        => __('Email', 'bulk-post-importer'),
+			'url'          => __('URL', 'bulk-post-importer'),
+			'password'     => __('Password', 'bulk-post-importer'),
+			'phone_number' => __('Phone Number', 'bulk-post-importer'),
+		);
 	}
 
 	/**
