@@ -4,7 +4,7 @@
  * Plugin Name:       Bulk Post Importer
  * Plugin URI:        https://github.com/cwahlfeldt/bulk-post-importer
  * Description:       Allows bulk importing of posts and custom post types from JSON and CSV files with field mapping for standard, ACF, and custom fields. Converts text content to basic Gutenberg paragraph blocks.
- * Version:           1.0.0
+ * Version: 1.0.0
  * Author:            Chris Wahlfeldt
  * Author URI:        https://cwahlfeldt.github.io/
  * License:           GPL v2 or later
@@ -21,7 +21,7 @@ if (! defined('ABSPATH')) {
 }
 
 // Define plugin constants.
-define('BULKPOSTIMPORTER_VERSION', '0.2.0');
+define( 'BULKPOSTIMPORTER_VERSION', '1.0.0' );
 define('BULKPOSTIMPORTER_PLUGIN_FILE', __FILE__);
 define('BULKPOSTIMPORTER_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('BULKPOSTIMPORTER_PLUGIN_URL', plugin_dir_url(__FILE__));
