@@ -5,31 +5,31 @@
  */
 
 /* Mapping table styles */
-.bji-mapping-table {
+.bulkpostimporter-mapping-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
 }
 
-.bji-mapping-table th,
-.bji-mapping-table td {
+.bulkpostimporter-mapping-table th,
+.bulkpostimporter-mapping-table td {
   padding: 12px 8px;
   vertical-align: top;
   border-bottom: 1px solid #e1e1e1;
 }
 
-.bji-mapping-table thead th {
+.bulkpostimporter-mapping-table thead th {
   background: #f9f9f9;
   font-weight: 600;
   border-bottom: 2px solid #c3c4c7;
 }
 
-.bji-mapping-table tbody tr:hover {
+.bulkpostimporter-mapping-table tbody tr:hover {
   background: #f6f7f7;
 }
 
-.bji-mapping-table select,
-.bji-mapping-table input[type="text"] {
+.bulkpostimporter-mapping-table select,
+.bulkpostimporter-mapping-table input[type="text"] {
   min-width: 200px;
   width: 95%;
   max-width: 400px;
@@ -39,43 +39,43 @@
   background: #fff;
 }
 
-.bji-mapping-table select:focus,
-.bji-mapping-table input[type="text"]:focus {
+.bulkpostimporter-mapping-table select:focus,
+.bulkpostimporter-mapping-table input[type="text"]:focus {
   border-color: #2271b1;
   box-shadow: 0 0 0 1px #2271b1;
   outline: 2px solid transparent;
 }
 
-.bji-mapping-table select:disabled {
+.bulkpostimporter-mapping-table select:disabled {
   background-image: unset;
 }
 
-.bji-mapping-table label {
+.bulkpostimporter-mapping-table label {
   display: block;
   font-weight: 600;
   margin-bottom: 4px;
 }
 
-.bji-mapping-table label code,
-.bji-mapping-table label i {
+.bulkpostimporter-mapping-table label code,
+.bulkpostimporter-mapping-table label i {
   font-size: 0.9em;
   color: #646970;
   font-weight: normal;
 }
 
-.bji-mapping-table .bji-remove-row {
+.bulkpostimporter-mapping-table .bulkpostimporter-remove-row {
   margin-left: 5px;
   vertical-align: middle;
   color: #d63638;
   border-color: #d63638;
 }
 
-.bji-mapping-table .bji-remove-row:hover {
+.bulkpostimporter-mapping-table .bulkpostimporter-remove-row:hover {
   background: #d63638;
   color: #fff;
 }
 
-.bji-mapping-table p.description {
+.bulkpostimporter-mapping-table p.description {
   font-size: 0.85em;
   font-style: italic;
   margin: 4px 0 0 0;
@@ -90,11 +90,11 @@ hr {
 }
 
 /* Custom field table specific styles */
-#bji-custom-fields-table tbody tr:first-child .bji-remove-row {
+#bulkpostimporter-custom-fields-table tbody tr:first-child .bulkpostimporter-remove-row {
   opacity: 0.5;
 }
 
-#bji-add-custom-field {
+#bulkpostimporter-add-custom-field {
   margin-top: 10px;
 }
 
@@ -128,7 +128,7 @@ hr {
 }
 
 /* Results page styles */
-.bji-results-summary {
+.bulkpostimporter-results-summary {
   background: #fff;
   border: 1px solid #c3c4c7;
   border-radius: 3px;
@@ -136,12 +136,12 @@ hr {
   margin: 20px 0;
 }
 
-.bji-results-summary h3 {
+.bulkpostimporter-results-summary h3 {
   margin-top: 0;
   color: #1d2327;
 }
 
-.bji-error-log {
+.bulkpostimporter-error-log {
   border: 1px solid #c3c4c7;
   background: #fff;
   padding: 15px;
@@ -153,30 +153,30 @@ hr {
   line-height: 1.5;
 }
 
-.bji-error-log ul {
+.bulkpostimporter-error-log ul {
   list-style: disc;
   margin-left: 20px;
   margin-bottom: 0;
 }
 
-.bji-error-log li {
+.bulkpostimporter-error-log li {
   margin-bottom: 5px;
   padding: 2px 0;
 }
 
 /* Responsive improvements */
 @media screen and (max-width: 782px) {
-  .bji-mapping-table {
+  .bulkpostimporter-mapping-table {
     font-size: 14px;
   }
 
-  .bji-mapping-table th,
-  .bji-mapping-table td {
+  .bulkpostimporter-mapping-table th,
+  .bulkpostimporter-mapping-table td {
     padding: 8px 4px;
   }
 
-  .bji-mapping-table select,
-  .bji-mapping-table input[type="text"] {
+  .bulkpostimporter-mapping-table select,
+  .bulkpostimporter-mapping-table input[type="text"] {
     min-width: 150px;
     width: 100%;
   }
@@ -192,8 +192,8 @@ hr {
 }
 
 /* Accessibility improvements */
-.bji-mapping-table select:focus,
-.bji-mapping-table input:focus {
+.bulkpostimporter-mapping-table select:focus,
+.bulkpostimporter-mapping-table input:focus {
   outline: 2px solid #2271b1;
   outline-offset: -2px;
 }
@@ -207,12 +207,12 @@ hr {
 }
 
 /* Loading state */
-.bji-loading {
+.bulkpostimporter-loading {
   opacity: 0.6;
   pointer-events: none;
 }
 
-.bji-loading::after {
+.bulkpostimporter-loading::after {
   content: "";
   position: absolute;
   top: 50%;

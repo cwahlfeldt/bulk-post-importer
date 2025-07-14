@@ -14,55 +14,55 @@ if (! defined('ABSPATH')) {
 /**
  * Main plugin class.
  */
-class BPI_Plugin
+class BULKPOSTIMPORTER_Plugin
 {
 
 	/**
 	 * Plugin instance.
 	 *
-	 * @var BPI_Plugin
+	 * @var BULKPOSTIMPORTER_Plugin
 	 */
 	private static $instance = null;
 
 	/**
 	 * Admin instance.
 	 *
-	 * @var BPI_Admin
+	 * @var BULKPOSTIMPORTER_Admin
 	 */
 	public $admin;
 
 	/**
 	 * Utils instance.
 	 *
-	 * @var BPI_Utils
+	 * @var BULKPOSTIMPORTER_Utils
 	 */
 	public $utils;
 
 	/**
 	 * ACF Handler instance.
 	 *
-	 * @var BPI_ACF_Handler
+	 * @var BULKPOSTIMPORTER_ACF_Handler
 	 */
 	public $acf_handler;
 
 	/**
 	 * File Handler instance.
 	 *
-	 * @var BPI_File_Handler
+	 * @var BULKPOSTIMPORTER_File_Handler
 	 */
 	public $file_handler;
 
 	/**
 	 * Import Processor instance.
 	 *
-	 * @var BPI_Import_Processor
+	 * @var BULKPOSTIMPORTER_Import_Processor
 	 */
 	public $import_processor;
 
 	/**
 	 * Get plugin instance.
 	 *
-	 * @return BPI_Plugin
+	 * @return BULKPOSTIMPORTER_Plugin
 	 */
 	public static function get_instance()
 	{
@@ -86,14 +86,14 @@ class BPI_Plugin
 	private function init()
 	{
 		// Initialize utility classes.
-		$this->utils           = new BPI_Utils();
-		$this->acf_handler     = new BPI_ACF_Handler();
-		$this->file_handler    = new BPI_File_Handler();
-		$this->import_processor = new BPI_Import_Processor();
+		$this->utils           = new BULKPOSTIMPORTER_Utils();
+		$this->acf_handler     = new BULKPOSTIMPORTER_ACF_Handler();
+		$this->file_handler    = new BULKPOSTIMPORTER_File_Handler();
+		$this->import_processor = new BULKPOSTIMPORTER_Import_Processor();
 
 		// Initialize admin interface.
 		if (is_admin()) {
-			$this->admin = new BPI_Admin();
+			$this->admin = new BULKPOSTIMPORTER_Admin();
 		}
 
 		// Load plugin assets.
@@ -107,30 +107,30 @@ class BPI_Plugin
 	 */
 	public function enqueue_admin_scripts($hook_suffix)
 	{
-		if ('tools_page_' . BPI_PLUGIN_SLUG !== $hook_suffix) {
+		if ('tools_page_' . BULKPOSTIMPORTER_PLUGIN_SLUG !== $hook_suffix) {
 			return;
 		}
 
 		wp_enqueue_script(
-			'bpi-admin',
-			BPI_PLUGIN_URL . 'assets/js/admin.js',
+			'bulkpostimporter-admin',
+			BULKPOSTIMPORTER_PLUGIN_URL . 'assets/js/admin.js',
 			array('jquery'),
-			BPI_VERSION,
+			BULKPOSTIMPORTER_VERSION,
 			true
 		);
 
 		wp_enqueue_style(
-			'bpi-admin',
-			BPI_PLUGIN_URL . 'assets/css/admin.css',
+			'bulkpostimporter-admin',
+			BULKPOSTIMPORTER_PLUGIN_URL . 'assets/css/admin.css',
 			array(),
-			BPI_VERSION
+			BULKPOSTIMPORTER_VERSION
 		);
 
 		wp_localize_script(
-			'bpi-admin',
-			'bpiAdmin',
+			'bulkpostimporter-admin',
+			'bulkpostimporterAdmin',
 			array(
-				'nonce'       => wp_create_nonce('bpi_admin_nonce'),
+				'nonce'       => wp_create_nonce('bulkpostimporter_admin_nonce'),
 				'ajaxUrl'     => admin_url('admin-ajax.php'),
 				'strings'     => array(
 					'removeRow'           => __('Remove', 'bulk-post-importer'),
@@ -149,7 +149,7 @@ class BPI_Plugin
 	public static function activate()
 	{
 		// Create any necessary database tables or options.
-		add_option('bpi_version', BPI_VERSION);
+		add_option('bulkpostimporter_version', BULKPOSTIMPORTER_VERSION);
 
 		// Flush rewrite rules.
 		flush_rewrite_rules();
@@ -162,8 +162,11 @@ class BPI_Plugin
 	{
 		// Clean up transients on deactivation.
 		global $wpdb;
-		$wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_bpi_%'");
-		$wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_bpi_%'");
+		
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", '_transient_bulkpostimporter_%'));
+		$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", '_transient_timeout_bulkpostimporter_%'));
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		// Flush rewrite rules.
 		flush_rewrite_rules();

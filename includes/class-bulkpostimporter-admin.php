@@ -14,7 +14,7 @@ if (! defined('ABSPATH')) {
 /**
  * Admin class for handling the admin interface.
  */
-class BPI_Admin
+class BULKPOSTIMPORTER_Admin
 {
 
 	/**
@@ -25,12 +25,12 @@ class BPI_Admin
 	/**
 	 * Nonce action.
 	 */
-	const NONCE_ACTION = 'bpi_import_action';
+	const NONCE_ACTION = 'bulkpostimporter_import_action';
 
 	/**
 	 * Nonce name.
 	 */
-	const NONCE_NAME = 'bpi_nonce';
+	const NONCE_NAME = 'bulkpostimporter_nonce';
 
 	/**
 	 * Constructor.
@@ -50,7 +50,7 @@ class BPI_Admin
 			__('Bulk Post Importer', 'bulk-post-importer'),
 			__('Bulk Post Importer', 'bulk-post-importer'),
 			self::REQUIRED_CAPABILITY,
-			BPI_PLUGIN_SLUG,
+			BULKPOSTIMPORTER_PLUGIN_SLUG,
 			array($this, 'render_admin_page')
 		);
 	}
@@ -61,14 +61,14 @@ class BPI_Admin
 	public function render_admin_page()
 	{
 		if (! current_user_can(self::REQUIRED_CAPABILITY)) {
-			wp_die(__('You do not have sufficient permissions to access this page.', 'bulk-post-importer'));
+			wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'bulk-post-importer'));
 		}
 
 
 		// Handle form submissions.
 		// Check for step 2 (process import) or presence of import button name
 		if ((isset($_POST['step']) && $_POST['step'] === '2') ||
-			isset($_POST['bpi_process_import'])
+			isset($_POST['bulkpostimporter_process_import'])
 		) {
 			$this->handle_process_import();
 			return;
@@ -76,7 +76,7 @@ class BPI_Admin
 
 		// Check for step 1 (upload) or presence of upload button name
 		if ((isset($_POST['step']) && $_POST['step'] === '1') ||
-			(isset($_POST['bpi_upload_json']) && isset($_FILES['bpi_json_file']))
+			(isset($_POST['bulkpostimporter_upload_json']) && isset($_FILES['bulkpostimporter_json_file']))
 		) {
 			$this->handle_upload_and_show_mapping();
 			return;
@@ -93,7 +93,7 @@ class BPI_Admin
 		$post_types = get_post_types(array('public' => true), 'objects');
 		unset($post_types['attachment']);
 
-		include BPI_PLUGIN_DIR . 'includes/admin/upload-form.php';
+		include BULKPOSTIMPORTER_PLUGIN_DIR . 'includes/admin/upload-form.php';
 	}
 
 	/**
@@ -103,7 +103,7 @@ class BPI_Admin
 	{
 		// Security checks.
 		if (! $this->verify_nonce()) {
-			BPI_Plugin::get_instance()->utils->add_admin_notice(
+			BULKPOSTIMPORTER_Plugin::get_instance()->utils->add_admin_notice(
 				__('Security check failed. Please try again.', 'bulk-post-importer'),
 				'error'
 			);
@@ -111,11 +111,11 @@ class BPI_Admin
 			return;
 		}
 
-		$file_handler = BPI_Plugin::get_instance()->file_handler;
+		$file_handler = BULKPOSTIMPORTER_Plugin::get_instance()->file_handler;
 		$result = $file_handler->process_uploaded_file();
 
 		if (is_wp_error($result)) {
-			BPI_Plugin::get_instance()->utils->add_admin_notice(
+			BULKPOSTIMPORTER_Plugin::get_instance()->utils->add_admin_notice(
 				$result->get_error_message(),
 				'error'
 			);
@@ -142,9 +142,9 @@ class BPI_Admin
 		$post_type_object = get_post_type_object($post_type);
 		$post_type_label  = $post_type_object ? $post_type_object->labels->singular_name : $post_type;
 
-		$acf_fields = BPI_Plugin::get_instance()->acf_handler->get_fields_for_post_type($post_type);
+		$acf_fields = BULKPOSTIMPORTER_Plugin::get_instance()->acf_handler->get_fields_for_post_type($post_type);
 
-		include BPI_PLUGIN_DIR . 'includes/admin/mapping-form.php';
+		include BULKPOSTIMPORTER_PLUGIN_DIR . 'includes/admin/mapping-form.php';
 	}
 
 	/**
@@ -154,7 +154,7 @@ class BPI_Admin
 	{
 		// Security checks.
 		if (! $this->verify_nonce()) {
-			BPI_Plugin::get_instance()->utils->add_admin_notice(
+			BULKPOSTIMPORTER_Plugin::get_instance()->utils->add_admin_notice(
 				__('Security check failed. Please start over.', 'bulk-post-importer'),
 				'error'
 			);
@@ -162,11 +162,11 @@ class BPI_Admin
 			return;
 		}
 
-		$processor = BPI_Plugin::get_instance()->import_processor;
+		$processor = BULKPOSTIMPORTER_Plugin::get_instance()->import_processor;
 		$result = $processor->process_import();
 
 		if (is_wp_error($result)) {
-			BPI_Plugin::get_instance()->utils->add_admin_notice(
+			BULKPOSTIMPORTER_Plugin::get_instance()->utils->add_admin_notice(
 				$result->get_error_message(),
 				'error'
 			);
@@ -184,7 +184,7 @@ class BPI_Admin
 	 */
 	private function render_results_page($result)
 	{
-		include BPI_PLUGIN_DIR . 'includes/admin/results-page.php';
+		include BULKPOSTIMPORTER_PLUGIN_DIR . 'includes/admin/results-page.php';
 	}
 
 	/**
@@ -193,11 +193,11 @@ class BPI_Admin
 	public function show_admin_notices()
 	{
 		$screen = get_current_screen();
-		if (! $screen || 'tools_page_' . BPI_PLUGIN_SLUG !== $screen->id) {
+		if (! $screen || 'tools_page_' . BULKPOSTIMPORTER_PLUGIN_SLUG !== $screen->id) {
 			return;
 		}
 
-		BPI_Plugin::get_instance()->utils->show_admin_notices();
+		BULKPOSTIMPORTER_Plugin::get_instance()->utils->show_admin_notices();
 	}
 
 	/**

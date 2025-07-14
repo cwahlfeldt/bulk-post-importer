@@ -14,7 +14,7 @@ if (! defined('ABSPATH')) {
 /**
  * Handles file upload and processing.
  */
-class BPI_File_Handler
+class BULKPOSTIMPORTER_File_Handler
 {
 
 	/**
@@ -24,6 +24,11 @@ class BPI_File_Handler
 	 */
 	public function process_uploaded_file()
 	{
+		// Verify nonce for additional security.
+		if (!isset($_POST[BULKPOSTIMPORTER_Admin::NONCE_NAME]) || !wp_verify_nonce(sanitize_key($_POST[BULKPOSTIMPORTER_Admin::NONCE_NAME]), BULKPOSTIMPORTER_Admin::NONCE_ACTION)) {
+			return new WP_Error('security_check_failed', __('Security check failed.', 'bulk-post-importer'));
+		}
+
 		// Validate file upload.
 		$validation_result = $this->validate_file_upload();
 		if (is_wp_error($validation_result)) {
@@ -31,9 +36,9 @@ class BPI_File_Handler
 		}
 
 		// Process the file.
-		$file_path = sanitize_text_field(wp_unslash($_FILES['bpi_json_file']['tmp_name']));
-		$file_name = sanitize_file_name($_FILES['bpi_json_file']['name']);
-		$post_type = isset($_POST['bpi_post_type']) ? sanitize_key($_POST['bpi_post_type']) : 'post';
+		$file_path = isset($_FILES['bulkpostimporter_json_file']['tmp_name']) ? sanitize_text_field(wp_unslash($_FILES['bulkpostimporter_json_file']['tmp_name'])) : '';
+		$file_name = isset($_FILES['bulkpostimporter_json_file']['name']) ? sanitize_file_name($_FILES['bulkpostimporter_json_file']['name']) : '';
+		$post_type = isset($_POST['bulkpostimporter_post_type']) ? sanitize_key($_POST['bulkpostimporter_post_type']) : 'post';
 
 		// Validate post type.
 		if (! post_type_exists($post_type)) {
@@ -60,7 +65,7 @@ class BPI_File_Handler
 		$field_keys = array_keys($first_item);
 
 		// Store data in transient.
-		$transient_key = BPI_Plugin::get_instance()->utils->generate_transient_key();
+		$transient_key = BULKPOSTIMPORTER_Plugin::get_instance()->utils->generate_transient_key();
 		$transient_data = array(
 			'data'      => $data,
 			'post_type' => $post_type,
@@ -85,18 +90,19 @@ class BPI_File_Handler
 	 */
 	private function validate_file_upload()
 	{
-		if (! isset($_FILES['bpi_json_file']) || empty($_FILES['bpi_json_file']['tmp_name'])) {
+		if (!isset($_FILES['bulkpostimporter_json_file']) || !isset($_FILES['bulkpostimporter_json_file']['tmp_name']) || empty($_FILES['bulkpostimporter_json_file']['tmp_name'])) {
 			return new WP_Error('no_file', __('No file was uploaded.', 'bulk-post-importer'));
 		}
 
-		if (UPLOAD_ERR_OK !== $_FILES['bpi_json_file']['error']) {
-			$error_code = $_FILES['bpi_json_file']['error'];
-			$error_message = BPI_Plugin::get_instance()->utils->get_upload_error_message($error_code);
+		if (!isset($_FILES['bulkpostimporter_json_file']['error']) || UPLOAD_ERR_OK !== $_FILES['bulkpostimporter_json_file']['error']) {
+			$error_code = isset($_FILES['bulkpostimporter_json_file']['error']) ? intval($_FILES['bulkpostimporter_json_file']['error']) : UPLOAD_ERR_NO_FILE;
+			$error_message = BULKPOSTIMPORTER_Plugin::get_instance()->utils->get_upload_error_message($error_code);
+			// translators: %s is the error message from the file upload
 			return new WP_Error('upload_error', sprintf(__('File upload error: %s', 'bulk-post-importer'), $error_message));
 		}
 
-		$file_tmp_path = sanitize_text_field(wp_unslash($_FILES['bpi_json_file']['tmp_name']));
-		$file_name = sanitize_file_name($_FILES['bpi_json_file']['name']);
+		$file_tmp_path = isset($_FILES['bulkpostimporter_json_file']['tmp_name']) ? sanitize_text_field(wp_unslash($_FILES['bulkpostimporter_json_file']['tmp_name'])) : '';
+		$file_name = isset($_FILES['bulkpostimporter_json_file']['name']) ? sanitize_file_name($_FILES['bulkpostimporter_json_file']['name']) : '';
 
 		// Check file type.
 		$file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
@@ -108,6 +114,7 @@ class BPI_File_Handler
 		if (! in_array($file_extension, $valid_extensions, true)) {
 			return new WP_Error(
 				'invalid_file_type',
+				// translators: %s is the detected file type
 				sprintf(__('Invalid file type. Please upload a .json or .csv file (detected type: %s).', 'bulk-post-importer'), esc_html($file_type))
 			);
 		}
@@ -116,6 +123,7 @@ class BPI_File_Handler
 		if (! in_array($file_type, $valid_mime_types, true)) {
 			return new WP_Error(
 				'invalid_mime_type',
+				// translators: %s is the detected MIME type
 				sprintf(__('Invalid MIME type. Please upload a valid JSON or CSV file (detected type: %s).', 'bulk-post-importer'), esc_html($file_type))
 			);
 		}
@@ -131,7 +139,18 @@ class BPI_File_Handler
 	 */
 	private function read_and_decode_json($file_path)
 	{
-		$json_content = file_get_contents($file_path);
+		global $wp_filesystem;
+		
+		// Initialize WP_Filesystem
+		if (!function_exists('WP_Filesystem')) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		
+		if (!WP_Filesystem()) {
+			return new WP_Error('filesystem_error', __('Could not initialize WordPress filesystem.', 'bulk-post-importer'));
+		}
+
+		$json_content = $wp_filesystem->get_contents($file_path);
 		if (false === $json_content) {
 			return new WP_Error('file_read_error', __('Could not read the uploaded file.', 'bulk-post-importer'));
 		}
@@ -145,6 +164,7 @@ class BPI_File_Handler
 		if (JSON_ERROR_NONE !== json_last_error()) {
 			return new WP_Error(
 				'json_decode_error',
+				// translators: %s is the JSON error message
 				sprintf(__('JSON Decode Error: %s. Please ensure the file is valid UTF-8 encoded JSON.', 'bulk-post-importer'), json_last_error_msg())
 			);
 		}
@@ -189,20 +209,42 @@ class BPI_File_Handler
 	 */
 	private function read_and_parse_csv($file_path)
 	{
-		if (! file_exists($file_path) || ! is_readable($file_path)) {
+		global $wp_filesystem;
+		
+		// Initialize WP_Filesystem
+		if (!function_exists('WP_Filesystem')) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		
+		if (!WP_Filesystem()) {
+			return new WP_Error('filesystem_error', __('Could not initialize WordPress filesystem.', 'bulk-post-importer'));
+		}
+
+		if (!$wp_filesystem->exists($file_path) || !$wp_filesystem->is_readable($file_path)) {
 			return new WP_Error('file_read_error', __('Could not read the uploaded CSV file.', 'bulk-post-importer'));
 		}
 
-		$handle = fopen($file_path, 'r');
-		if (false === $handle) {
+		$csv_content = $wp_filesystem->get_contents($file_path);
+		if (false === $csv_content) {
 			return new WP_Error('file_open_error', __('Could not open the uploaded CSV file.', 'bulk-post-importer'));
 		}
 
 		$csv_data = array();
 		$headers = array();
 		$headers_found = false;
-
-		while (($row = fgetcsv($handle, 0, ',')) !== false) {
+		
+		// Split content into lines and parse each line
+		$lines = explode("\n", $csv_content);
+		
+		foreach ($lines as $line) {
+			$line = trim($line);
+			if (empty($line)) {
+				continue;
+			}
+			
+			// Parse CSV row
+			$row = str_getcsv($line, ',');
+			
 			// Skip empty rows
 			if (empty(array_filter($row))) {
 				continue;
@@ -214,7 +256,6 @@ class BPI_File_Handler
 				
 				// Validate headers
 				if (empty($headers) || count(array_filter($headers)) === 0) {
-					fclose($handle);
 					return new WP_Error('invalid_csv_headers', __('CSV file must have header row with column names.', 'bulk-post-importer'));
 				}
 				
@@ -231,8 +272,6 @@ class BPI_File_Handler
 			
 			$csv_data[] = $row_data;
 		}
-
-		fclose($handle);
 
 		// Validate CSV structure
 		if (empty($csv_data)) {

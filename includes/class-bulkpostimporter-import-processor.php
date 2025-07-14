@@ -14,7 +14,7 @@ if (! defined('ABSPATH')) {
 /**
  * Handles the import processing.
  */
-class BPI_Import_Processor
+class BULKPOSTIMPORTER_Import_Processor
 {
 
 	/**
@@ -24,17 +24,24 @@ class BPI_Import_Processor
 	 */
 	public function process_import()
 	{
+		// Verify nonce for security.
+		if (!isset($_POST[BULKPOSTIMPORTER_Admin::NONCE_NAME]) || !wp_verify_nonce(sanitize_key($_POST[BULKPOSTIMPORTER_Admin::NONCE_NAME]), BULKPOSTIMPORTER_Admin::NONCE_ACTION)) {
+			return new WP_Error('security_check_failed', __('Security check failed.', 'bulk-post-importer'));
+		}
+
 		// Validate input data.
 		$validation_result = $this->validate_import_data();
 		if (is_wp_error($validation_result)) {
 			return $validation_result;
 		}
 
-		$transient_key = sanitize_text_field(wp_unslash($_POST['bpi_transient_key']));
-		$post_type = sanitize_key($_POST['bpi_post_type']);
+		$transient_key = isset($_POST['bulkpostimporter_transient_key']) ? sanitize_text_field(wp_unslash($_POST['bulkpostimporter_transient_key'])) : '';
+		$post_type = isset($_POST['bulkpostimporter_post_type']) ? sanitize_key($_POST['bulkpostimporter_post_type']) : '';
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$mapping = isset($_POST['mapping']) && is_array($_POST['mapping'])
-			? BPI_Plugin::get_instance()->utils->sanitize_mapping_array($_POST['mapping'])
+			? BULKPOSTIMPORTER_Plugin::get_instance()->utils->sanitize_mapping_array(wp_unslash($_POST['mapping']))
 			: array();
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		// Retrieve data from transient.
 		$transient_data = get_transient($transient_key);
@@ -63,7 +70,7 @@ class BPI_Import_Processor
 	 */
 	private function validate_import_data()
 	{
-		$required_fields = array('bpi_transient_key', 'bpi_post_type', 'mapping');
+		$required_fields = array('bulkpostimporter_transient_key', 'bulkpostimporter_post_type', 'mapping');
 
 		foreach ($required_fields as $field) {
 			if (! isset($_POST[$field])) {
@@ -93,8 +100,8 @@ class BPI_Import_Processor
 		$error_messages = array();
 		$start_time = microtime(true);
 
-		$acf_handler = BPI_Plugin::get_instance()->acf_handler;
-		$utils = BPI_Plugin::get_instance()->utils;
+		$acf_handler = BULKPOSTIMPORTER_Plugin::get_instance()->acf_handler;
+		$utils = BULKPOSTIMPORTER_Plugin::get_instance()->utils;
 
 		// Performance optimizations.
 		wp_defer_term_counting(true);
@@ -105,7 +112,8 @@ class BPI_Import_Processor
 			if (! is_array($item)) {
 				$skipped_count++;
 				$error_messages[] = sprintf(
-					__('Item #%d: Skipped - Invalid data format (expected object/array).', 'bulk-post-importer'),
+					// translators: %d is the item number in the import process
+					__('Item #%1$d: Skipped - Invalid data format (expected object/array).', 'bulk-post-importer'),
 					$index + 1
 				);
 				continue;
@@ -148,8 +156,8 @@ class BPI_Import_Processor
 	 * @param int                  $index       The item index.
 	 * @param string               $post_type   The post type.
 	 * @param array                $mapping     The field mapping.
-	 * @param BPI_ACF_Handler      $acf_handler ACF handler instance.
-	 * @param BPI_Utils            $utils       Utils instance.
+	 * @param BULKPOSTIMPORTER_ACF_Handler      $acf_handler ACF handler instance.
+	 * @param BULKPOSTIMPORTER_Utils            $utils       Utils instance.
 	 * @return array|WP_Error Result array or error.
 	 */
 	private function process_single_item($item, $index, $post_type, $mapping, $acf_handler, $utils)
@@ -172,7 +180,11 @@ class BPI_Import_Processor
 		if (! $mapped_title) {
 			return new WP_Error(
 				'missing_title',
-				sprintf(__('Item #%d: Skipped - Missing required field mapping or value for: Title (post_title).', 'bulk-post-importer'), $index + 1)
+				sprintf(
+					// translators: %d is the item number in the import process
+					__('Item #%1$d: Skipped - Missing required field mapping or value for: Title (post_title).', 'bulk-post-importer'), 
+					$index + 1
+				)
 			);
 		}
 
@@ -189,7 +201,8 @@ class BPI_Import_Processor
 			return new WP_Error(
 				'post_insert_failed',
 				sprintf(
-					__('Item #%d: Failed to create post - %s', 'bulk-post-importer'),
+					// translators: %1$d is the item number, %2$s is the error message
+					__('Item #%1$d: Failed to create post - %2$s', 'bulk-post-importer'),
 					$index + 1,
 					$post_id->get_error_message()
 				)
@@ -208,7 +221,7 @@ class BPI_Import_Processor
 	 * @param array     $item      The item data.
 	 * @param array     $mapping   The field mapping.
 	 * @param array     $post_data The post data array (by reference).
-	 * @param BPI_Utils $utils     Utils instance.
+	 * @param BULKPOSTIMPORTER_Utils $utils     Utils instance.
 	 * @param int       $index     Item index.
 	 * @param array     $warnings  Warnings array (by reference).
 	 * @return bool Whether title was mapped.
@@ -276,7 +289,8 @@ class BPI_Import_Processor
 			$post_data['post_status'] = $sanitized_status;
 		} else {
 			$warnings[] = sprintf(
-				__('Item #%d: Notice - Invalid status "%s" provided for post_status, using default "publish".', 'bulk-post-importer'),
+				// translators: %1$d is the item number, %2$s is the invalid status value
+				__('Item #%1$d: Notice - Invalid status "%2$s" provided for post_status, using default "publish".', 'bulk-post-importer'),
 				$index + 1,
 				esc_html($value)
 			);
@@ -300,7 +314,8 @@ class BPI_Import_Processor
 			$post_data['post_date_gmt'] = gmdate('Y-m-d H:i:s', $timestamp);
 		} else {
 			$warnings[] = sprintf(
-				__('Item #%d: Notice - Could not parse date "%s" for post_date, using current time.', 'bulk-post-importer'),
+				// translators: %1$d is the item number, %2$s is the date value that couldn't be parsed
+				__('Item #%1$d: Notice - Could not parse date "%2$s" for post_date, using current time.', 'bulk-post-importer'),
 				$index + 1,
 				esc_html($value)
 			);
@@ -346,7 +361,7 @@ class BPI_Import_Processor
 	 * @param array           $item                 The item data.
 	 * @param array           $mapping              The field mapping.
 	 * @param array           $acf_fields_to_update ACF fields array (by reference).
-	 * @param BPI_ACF_Handler $acf_handler          ACF handler instance.
+	 * @param BULKPOSTIMPORTER_ACF_Handler $acf_handler          ACF handler instance.
 	 */
 	private function prepare_acf_fields($item, $mapping, &$acf_fields_to_update, $acf_handler)
 	{
@@ -372,7 +387,7 @@ class BPI_Import_Processor
 	 *
 	 * @param array           $acf_fields_to_update ACF fields to update.
 	 * @param int             $post_id              Post ID.
-	 * @param BPI_ACF_Handler $acf_handler          ACF handler instance.
+	 * @param BULKPOSTIMPORTER_ACF_Handler $acf_handler          ACF handler instance.
 	 * @param int             $index                Item index.
 	 * @param array           $warnings             Warnings array (by reference).
 	 */
@@ -390,7 +405,8 @@ class BPI_Import_Processor
 				$field_label = $acf_field_object ? $acf_field_object['label'] : $field_key;
 
 				$warnings[] = sprintf(
-					__('Item #%d (Post ID %d): Notice - ACF update potentially failed for field "%s". Check data format in JSON.', 'bulk-post-importer'),
+					// translators: %1$d is the item number, %2$d is the post ID, %3$s is the field name
+					__('Item #%1$d (Post ID %2$d): Notice - ACF update potentially failed for field "%3$s". Check data format in JSON.', 'bulk-post-importer'),
 					$index + 1,
 					$post_id,
 					esc_html($field_label)

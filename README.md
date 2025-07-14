@@ -19,6 +19,7 @@ Import large amounts of content into WordPress from JSON or CSV files. Perfect f
 ### Supported File Formats
 
 **JSON Format**: Array of objects
+
 ```json
 [
   {
@@ -30,6 +31,7 @@ Import large amounts of content into WordPress from JSON or CSV files. Perfect f
 ```
 
 **CSV Format**: Headers in first row, data in subsequent rows
+
 ```csv
 title,content,custom_field
 "Post Title","Post content","value"

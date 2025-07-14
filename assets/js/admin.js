@@ -15,13 +15,13 @@
      * Initialize
      */
     init: function () {
-      this.table = $("#bji-custom-fields-table");
+      this.table = $("#bulkpostimporter-custom-fields-table");
       if (!this.table.length) {
         return;
       }
 
       this.tableBody = this.table.find("tbody");
-      this.addButton = $("#bji-add-custom-field");
+      this.addButton = $("#bulkpostimporter-add-custom-field");
       this.rowIndex = this.tableBody.find("tr").length;
 
       this.bindEvents();
@@ -35,7 +35,7 @@
       this.addButton.on("click", this.addRow.bind(this));
 
       // Remove row button click (event delegation)
-      this.tableBody.on("click", ".bji-remove-row", this.removeRow.bind(this));
+      this.tableBody.on("click", ".bulkpostimporter-remove-row", this.removeRow.bind(this));
     },
 
     /**
@@ -64,7 +64,7 @@
       const removeButton = this.createRemoveButton();
 
       return `
-				<tr valign="top" class="bji-custom-field-row">
+				<tr valign="top" class="bulkpostimporter-custom-field-row">
 					<td>${jsonKeySelect}</td>
 					<td>${metaKeyInput}</td>
 					<td>${removeButton}</td>
@@ -84,14 +84,14 @@
      * Create meta key input
      */
     createMetaKeyInput: function (index) {
-      return `<input type="text" name="mapping[custom][${index}][meta_key]" placeholder="${bpiAdmin.strings.enterMetaKey}" />`;
+      return `<input type="text" name="mapping[custom][${index}][meta_key]" placeholder="${bulkpostimporterAdmin.strings.enterMetaKey}" />`;
     },
 
     /**
      * Create remove button
      */
     createRemoveButton: function () {
-      return `<button type="button" class="button bji-remove-row">${bpiAdmin.strings.removeRow}</button>`;
+      return `<button type="button" class="button bji-remove-row">${bulkpostimporterAdmin.strings.removeRow}</button>`;
     },
 
     /**
@@ -101,7 +101,7 @@
       const firstSelect = this.tableBody.find("select:first");
       return firstSelect.length
         ? firstSelect.html()
-        : `<option value="">${bpiAdmin.strings.doNotMap}</option>`;
+        : `<option value="">${bulkpostimporterAdmin.strings.doNotMap}</option>`;
     },
   };
 
@@ -132,7 +132,7 @@
      * Validate form before submission
      */
     validateForm: function (e) {
-      const fileInput = $("#bji_json_file");
+      const fileInput = $("#bulkpostimporter_json_file");
 
       if (!fileInput.length) {
         return true;
@@ -147,7 +147,7 @@
       // Check file size (10MB limit)
       const maxSize = 10 * 1024 * 1024; // 10MB in bytes
       if (file.size > maxSize) {
-        alert(bpiAdmin.strings.fileSizeError);
+        alert(bulkpostimporterAdmin.strings.fileSizeError);
         e.preventDefault();
         return false;
       }
@@ -161,7 +161,7 @@
       const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
       
       if (!hasValidType && !hasValidExtension) {
-        alert(bpiAdmin.strings.fileTypeError);
+        alert(bulkpostimporterAdmin.strings.fileTypeError);
         e.preventDefault();
         return false;
       }
@@ -178,7 +178,7 @@
      * Initialize
      */
     init: function () {
-      this.mappingTable = $(".bji-mapping-table");
+      this.mappingTable = $(".bulkpostimporter-mapping-table");
       if (!this.mappingTable.length) {
         return;
       }

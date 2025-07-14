@@ -14,13 +14,13 @@ if (! defined('ABSPATH')) {
 /**
  * Utility class containing helper functions.
  */
-class BPI_Utils
+class BULKPOSTIMPORTER_Utils
 {
 
 	/**
 	 * Transient prefix for storing import data.
 	 */
-	const TRANSIENT_PREFIX = 'bpi_import_data_';
+	const TRANSIENT_PREFIX = 'bulkpostimporter_import_data_';
 
 	/**
 	 * Add an admin notice.
@@ -35,7 +35,7 @@ class BPI_Utils
 			return;
 		}
 
-		$transient_key = 'bpi_admin_notices_' . $user_id;
+		$transient_key = 'bulkpostimporter_admin_notices_' . $user_id;
 		$notices = get_transient($transient_key);
 
 		if (! is_array($notices)) {
@@ -60,7 +60,7 @@ class BPI_Utils
 			return;
 		}
 
-		$transient_key = 'bpi_admin_notices_' . $user_id;
+		$transient_key = 'bulkpostimporter_admin_notices_' . $user_id;
 		$notices = get_transient($transient_key);
 
 		if (empty($notices) || ! is_array($notices)) {
@@ -167,7 +167,7 @@ class BPI_Utils
 	 */
 	public function generate_transient_key()
 	{
-		return self::TRANSIENT_PREFIX . get_current_user_id() . '_' . wp_create_nonce('bpi_transient');
+		return self::TRANSIENT_PREFIX . get_current_user_id() . '_' . wp_create_nonce('bulkpostimporter_transient');
 	}
 
 	/**

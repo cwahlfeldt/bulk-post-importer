@@ -4,7 +4,7 @@
  * Plugin Name:       Bulk Post Importer
  * Plugin URI:        https://github.com/cwahlfeldt/bulk-post-importer
  * Description:       Allows bulk importing of posts and custom post types from JSON and CSV files with field mapping for standard, ACF, and custom fields. Converts text content to basic Gutenberg paragraph blocks.
- * Version:           0.2.0
+ * Version:           1.0.0
  * Author:            Chris Wahlfeldt
  * Author URI:        https://cwahlfeldt.github.io/
  * License:           GPL v2 or later
@@ -21,28 +21,28 @@ if (! defined('ABSPATH')) {
 }
 
 // Define plugin constants.
-define('BPI_VERSION', '0.2.0');
-define('BPI_PLUGIN_FILE', __FILE__);
-define('BPI_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('BPI_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('BPI_PLUGIN_SLUG', 'bulk-post-importer');
+define('BULKPOSTIMPORTER_VERSION', '0.2.0');
+define('BULKPOSTIMPORTER_PLUGIN_FILE', __FILE__);
+define('BULKPOSTIMPORTER_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('BULKPOSTIMPORTER_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('BULKPOSTIMPORTER_PLUGIN_SLUG', 'bulk-post-importer');
 
 // Autoload classes.
-spl_autoload_register('bpi_autoload');
+spl_autoload_register('bulkpostimporter_autoload');
 
 /**
  * Autoload plugin classes.
  *
  * @param string $class_name The class name to load.
  */
-function bpi_autoload($class_name)
+function bulkpostimporter_autoload($class_name)
 {
-	if (strpos($class_name, 'BPI_') !== 0) {
+	if (strpos($class_name, 'BULKPOSTIMPORTER_') !== 0) {
 		return;
 	}
 
 	$class_file = str_replace('_', '-', strtolower($class_name));
-	$class_path = BPI_PLUGIN_DIR . 'includes/class-' . $class_file . '.php';
+	$class_path = BULKPOSTIMPORTER_PLUGIN_DIR . 'includes/class-' . $class_file . '.php';
 
 	if (file_exists($class_path)) {
 		require_once $class_path;
@@ -50,32 +50,20 @@ function bpi_autoload($class_name)
 }
 
 // Initialize the plugin.
-add_action('plugins_loaded', 'bpi_init');
+add_action('plugins_loaded', 'bulkpostimporter_init');
 
 /**
  * Initialize the plugin.
  */
-function bpi_init()
+function bulkpostimporter_init()
 {
 	// Initialize main plugin class.
-	BPI_Plugin::get_instance();
+	BULKPOSTIMPORTER_Plugin::get_instance();
 }
 
-/**
- * Load plugin text domain for translations.
- */
-function bpi_load_textdomain()
-{
-	load_plugin_textdomain(
-		'bulk-post-importer',
-		false,
-		dirname(plugin_basename(__FILE__)) . '/languages'
-	);
-}
-
-// Load text domain early.
-add_action('init', 'bpi_load_textdomain');
+// WordPress automatically loads plugin translations since 4.6
 
 // Activation and deactivation hooks.
-register_activation_hook(__FILE__, array('BPI_Plugin', 'activate'));
-register_deactivation_hook(__FILE__, array('BPI_Plugin', 'deactivate'));
+register_activation_hook(__FILE__, array('BULKPOSTIMPORTER_Plugin', 'activate'));
+register_deactivation_hook(__FILE__, array('BULKPOSTIMPORTER_Plugin', 'deactivate'));
+

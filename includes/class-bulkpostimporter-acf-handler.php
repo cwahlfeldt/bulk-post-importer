@@ -14,7 +14,7 @@ if (! defined('ABSPATH')) {
 /**
  * Handles Advanced Custom Fields integration.
  */
-class BPI_ACF_Handler
+class BULKPOSTIMPORTER_ACF_Handler
 {
 
 	/**

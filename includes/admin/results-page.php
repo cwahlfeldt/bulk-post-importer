@@ -19,6 +19,7 @@ if (! defined('ABSPATH')) {
 		<p>
 			<?php
 			printf(
+				// translators: %1$s is the file name, %2$s is the duration in seconds, %3$d is the number of posts imported
 				esc_html__('Import process completed for file %1$s in %2$s seconds. %3$d posts imported successfully.', 'bulk-post-importer'),
 				'<strong>' . esc_html($result['original_file_name']) . '</strong>',
 				esc_html($result['duration']),
@@ -33,6 +34,7 @@ if (! defined('ABSPATH')) {
 			<p>
 				<?php
 				printf(
+					// translators: %d is the number of items skipped during import
 					esc_html(_n('%d item was skipped.', '%d items were skipped.', $result['skipped_count'], 'bulk-post-importer')),
 					absint($result['skipped_count'])
 				);
@@ -56,7 +58,7 @@ if (! defined('ABSPATH')) {
 	<?php endif; ?>
 
 	<p style="margin-top: 20px;">
-		<a href="<?php echo esc_url(admin_url('tools.php?page=' . BPI_PLUGIN_SLUG)); ?>" class="button button-primary">
+		<a href="<?php echo esc_url(admin_url('tools.php?page=' . BULKPOSTIMPORTER_PLUGIN_SLUG)); ?>" class="button button-primary">
 			<?php esc_html_e('Import Another File', 'bulk-post-importer'); ?>
 		</a>
 	</p>
