@@ -1,0 +1,4 @@
+title,content,excerpt,status,date,custom_field_1,acf_text_field,acf_number_field,acf_email_field
+"CSV Test Post 1","This is CSV content for test post 1.","CSV test post 1 excerpt","publish","2024-01-01 10:00:00","CSV Custom value 1","CSV ACF text value 1","123","csvtest1@example.com"
+"CSV Test Post 2","CSV content for second test post with quotes and ""escaped"" values.","CSV second test post excerpt","draft","2024-01-02 11:30:00","CSV Custom value 2","CSV ACF text value 2","456","csvtest2@example.com"
+"CSV Test Post 3","CSV third test post content with multiple paragraphs.","","publish","2024-01-03 14:15:00","CSV Custom value 3","CSV ACF text value 3","789",""

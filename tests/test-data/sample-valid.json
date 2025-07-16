@@ -1,0 +1,35 @@
+[
+    {
+        "title": "Test Post 1",
+        "content": "This is the content for test post 1. It should be converted to Gutenberg blocks.",
+        "excerpt": "Test post 1 excerpt",
+        "status": "publish",
+        "date": "2024-01-01 10:00:00",
+        "custom_field_1": "Custom value 1",
+        "acf_text_field": "ACF text value 1",
+        "acf_number_field": "123",
+        "acf_email_field": "test1@example.com"
+    },
+    {
+        "title": "Test Post 2",
+        "content": "Content for second test post with some HTML <strong>bold</strong> text.",
+        "excerpt": "Second test post excerpt",
+        "status": "draft",
+        "date": "2024-01-02 11:30:00",
+        "custom_field_1": "Custom value 2",
+        "custom_field_2": "Another custom field",
+        "acf_text_field": "ACF text value 2",
+        "acf_number_field": "456",
+        "acf_email_field": "test2@example.com"
+    },
+    {
+        "title": "Test Post 3",
+        "content": "Third test post content with line breaks\nand multiple paragraphs.",
+        "excerpt": "",
+        "status": "publish",
+        "date": "2024-01-03 14:15:00",
+        "custom_field_1": "Custom value 3",
+        "acf_text_field": "ACF text value 3",
+        "acf_number_field": "789"
+    }
+]
